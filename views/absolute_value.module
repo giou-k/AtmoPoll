@@ -1,0 +1,170 @@
+<?php
+$view = new view();
+$view->name = 'absolute_value';
+$view->description = '';
+$view->tag = 'default';
+$view->base_table = 'node';
+$view->human_name = 'Απόλυτη Τιμή Ρύπανσης';
+$view->core = 7;
+$view->api_version = '3.0';
+$view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
+
+/* Display: Master */
+$handler = $view->new_display('default', 'Master', 'default');
+$handler->display->display_options['title'] = 'Απόλυτη Τιμή Ρύπανσης';
+$handler->display->display_options['use_more_always'] = FALSE;
+$handler->display->display_options['group_by'] = TRUE;
+$handler->display->display_options['access']['type'] = 'perm';
+$handler->display->display_options['cache']['type'] = 'none';
+$handler->display->display_options['query']['type'] = 'views_query';
+$handler->display->display_options['exposed_form']['type'] = 'basic';
+$handler->display->display_options['pager']['type'] = 'full';
+$handler->display->display_options['pager']['options']['items_per_page'] = '10';
+$handler->display->display_options['style_plugin'] = 'default';
+$handler->display->display_options['row_plugin'] = 'fields';
+/* Relationship: Content: Taxonomy terms on node */
+$handler->display->display_options['relationships']['term_node_tid']['id'] = 'term_node_tid';
+$handler->display->display_options['relationships']['term_node_tid']['table'] = 'node';
+$handler->display->display_options['relationships']['term_node_tid']['field'] = 'term_node_tid';
+$handler->display->display_options['relationships']['term_node_tid']['vocabularies'] = array(
+    'taxonomy_station' => 'taxonomy_station',
+    'tags' => 0,
+    'taxonomy_pollution_type' => 0,
+);
+/* Field: Content: Title */
+$handler->display->display_options['fields']['title']['id'] = 'title';
+$handler->display->display_options['fields']['title']['table'] = 'node';
+$handler->display->display_options['fields']['title']['field'] = 'title';
+$handler->display->display_options['fields']['title']['label'] = '';
+$handler->display->display_options['fields']['title']['alter']['word_boundary'] = FALSE;
+$handler->display->display_options['fields']['title']['alter']['ellipsis'] = FALSE;
+/* Field: Content: Καταγραφές */
+$handler->display->display_options['fields']['field_content_records']['id'] = 'field_content_records';
+$handler->display->display_options['fields']['field_content_records']['table'] = 'field_data_field_content_records';
+$handler->display->display_options['fields']['field_content_records']['field'] = 'field_content_records';
+$handler->display->display_options['fields']['field_content_records']['type'] = 'number_decimal';
+$handler->display->display_options['fields']['field_content_records']['settings'] = array(
+    'thousand_separator' => '',
+    'decimal_separator' => '.',
+    'scale' => '2',
+    'prefix_suffix' => 1,
+);
+$handler->display->display_options['fields']['field_content_records']['delta_offset'] = '0';
+/* Field: Taxonomy term: Γεωγραφικό Μήκος */
+$handler->display->display_options['fields']['field_longitude']['id'] = 'field_longitude';
+$handler->display->display_options['fields']['field_longitude']['table'] = 'field_data_field_longitude';
+$handler->display->display_options['fields']['field_longitude']['field'] = 'field_longitude';
+$handler->display->display_options['fields']['field_longitude']['relationship'] = 'term_node_tid';
+/* Field: Taxonomy term: Γεωγραφικό Πλάτος */
+$handler->display->display_options['fields']['field_latitude']['id'] = 'field_latitude';
+$handler->display->display_options['fields']['field_latitude']['table'] = 'field_data_field_latitude';
+$handler->display->display_options['fields']['field_latitude']['field'] = 'field_latitude';
+$handler->display->display_options['fields']['field_latitude']['relationship'] = 'term_node_tid';
+$handler->display->display_options['fields']['field_latitude']['settings'] = array(
+    'thousand_separator' => '',
+    'decimal_separator' => '.',
+    'scale' => '2',
+    'prefix_suffix' => 1,
+);
+/* Field: Content: Καταγραφές (field_content_records:delta) */
+$handler->display->display_options['fields']['delta']['id'] = 'delta';
+$handler->display->display_options['fields']['delta']['table'] = 'field_data_field_content_records';
+$handler->display->display_options['fields']['delta']['field'] = 'delta';
+$handler->display->display_options['fields']['delta']['label'] = 'Ώρα (00:01-23:01)';
+$handler->display->display_options['fields']['delta']['separator'] = '';
+/* Sort criterion: Content: Post date */
+$handler->display->display_options['sorts']['created']['id'] = 'created';
+$handler->display->display_options['sorts']['created']['table'] = 'node';
+$handler->display->display_options['sorts']['created']['field'] = 'created';
+$handler->display->display_options['sorts']['created']['order'] = 'DESC';
+/* Filter criterion: Content: Published */
+$handler->display->display_options['filters']['status']['id'] = 'status';
+$handler->display->display_options['filters']['status']['table'] = 'node';
+$handler->display->display_options['filters']['status']['field'] = 'status';
+$handler->display->display_options['filters']['status']['value'] = 1;
+$handler->display->display_options['filters']['status']['group'] = 1;
+$handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
+/* Filter criterion: Content: Type */
+$handler->display->display_options['filters']['type']['id'] = 'type';
+$handler->display->display_options['filters']['type']['table'] = 'node';
+$handler->display->display_options['filters']['type']['field'] = 'type';
+$handler->display->display_options['filters']['type']['value'] = array(
+    'record' => 'record',
+);
+/* Filter criterion: Taxonomy term: Κωδικός (field_id) */
+$handler->display->display_options['filters']['field_id_value']['id'] = 'field_id_value';
+$handler->display->display_options['filters']['field_id_value']['table'] = 'field_data_field_id';
+$handler->display->display_options['filters']['field_id_value']['field'] = 'field_id_value';
+$handler->display->display_options['filters']['field_id_value']['relationship'] = 'term_node_tid';
+$handler->display->display_options['filters']['field_id_value']['exposed'] = TRUE;
+$handler->display->display_options['filters']['field_id_value']['expose']['operator_id'] = 'field_id_value_op';
+$handler->display->display_options['filters']['field_id_value']['expose']['label'] = 'Κωδικός';
+$handler->display->display_options['filters']['field_id_value']['expose']['operator'] = 'field_id_value_op';
+$handler->display->display_options['filters']['field_id_value']['expose']['identifier'] = 'field_id_value';
+$handler->display->display_options['filters']['field_id_value']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+);
+/* Filter criterion: Content: Ημερομηνία (field_content_date) */
+$handler->display->display_options['filters']['field_content_date_value']['id'] = 'field_content_date_value';
+$handler->display->display_options['filters']['field_content_date_value']['table'] = 'field_data_field_content_date';
+$handler->display->display_options['filters']['field_content_date_value']['field'] = 'field_content_date_value';
+$handler->display->display_options['filters']['field_content_date_value']['exposed'] = TRUE;
+$handler->display->display_options['filters']['field_content_date_value']['expose']['operator_id'] = 'field_content_date_value_op';
+$handler->display->display_options['filters']['field_content_date_value']['expose']['label'] = 'Ημερομηνία';
+$handler->display->display_options['filters']['field_content_date_value']['expose']['operator'] = 'field_content_date_value_op';
+$handler->display->display_options['filters']['field_content_date_value']['expose']['identifier'] = 'field_content_date_value';
+$handler->display->display_options['filters']['field_content_date_value']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+);
+/* Filter criterion: Content: Καταγραφές (field_content_records:delta) */
+$handler->display->display_options['filters']['delta']['id'] = 'delta';
+$handler->display->display_options['filters']['delta']['table'] = 'field_data_field_content_records';
+$handler->display->display_options['filters']['delta']['field'] = 'delta';
+$handler->display->display_options['filters']['delta']['exposed'] = TRUE;
+$handler->display->display_options['filters']['delta']['expose']['operator_id'] = 'delta_op';
+$handler->display->display_options['filters']['delta']['expose']['label'] = 'Ώρα';
+$handler->display->display_options['filters']['delta']['expose']['operator'] = 'delta_op';
+$handler->display->display_options['filters']['delta']['expose']['identifier'] = 'delta';
+$handler->display->display_options['filters']['delta']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+);
+$handler->display->display_options['filters']['delta']['group_info']['label'] = 'Καταγραφές (field_content_records:delta)';
+$handler->display->display_options['filters']['delta']['group_info']['identifier'] = 'delta';
+$handler->display->display_options['filters']['delta']['group_info']['remember'] = FALSE;
+$handler->display->display_options['filters']['delta']['group_info']['group_items'] = array(
+    1 => array(),
+    2 => array(),
+    3 => array(),
+);
+/* Filter criterion: Content: Τύπος Ρύπου (field_content_pollution) */
+$handler->display->display_options['filters']['field_content_pollution_tid']['id'] = 'field_content_pollution_tid';
+$handler->display->display_options['filters']['field_content_pollution_tid']['table'] = 'field_data_field_content_pollution';
+$handler->display->display_options['filters']['field_content_pollution_tid']['field'] = 'field_content_pollution_tid';
+$handler->display->display_options['filters']['field_content_pollution_tid']['exposed'] = TRUE;
+$handler->display->display_options['filters']['field_content_pollution_tid']['expose']['operator_id'] = 'field_content_pollution_tid_op';
+$handler->display->display_options['filters']['field_content_pollution_tid']['expose']['label'] = 'Τύπος Ρύπου';
+$handler->display->display_options['filters']['field_content_pollution_tid']['expose']['operator'] = 'field_content_pollution_tid_op';
+$handler->display->display_options['filters']['field_content_pollution_tid']['expose']['identifier'] = 'field_content_pollution_tid';
+$handler->display->display_options['filters']['field_content_pollution_tid']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+);
+$handler->display->display_options['filters']['field_content_pollution_tid']['type'] = 'select';
+$handler->display->display_options['filters']['field_content_pollution_tid']['vocabulary'] = 'taxonomy_pollution_type';
+
+/* Display: Page */
+$handler = $view->new_display('page', 'Page', 'page');
+$handler->display->display_options['path'] = 'pollution-value';
+$handler->display->display_options['menu']['type'] = 'normal';
+$handler->display->display_options['menu']['title'] = 'Απόλυτη Τιμή Ρύπανσης';
+
+/* Display: Services */
+$handler = $view->new_display('services', 'Services', 'services_1');
+$handler->display->display_options['path'] = 'rest-pollution-value';

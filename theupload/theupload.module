@@ -1,0 +1,178 @@
+<?php
+
+/**
+ * Implements hook_permission()
+ */
+function theupload_permission() {
+  return array(
+    'administer uploader' => array(
+      'title' => t('Administer Uploader'),
+      'description' => t('Allow the following roles to upload csv files to the server.'),
+    ),
+  );
+}
+ 
+/**
+ * Implements hook_menu()
+ */
+function theupload_menu() {
+  $items['file-uploader'] = array(
+    'title' => 'Καταχώρηση Καταγραφής',
+    'type' => MENU_CALLBACK,
+    'description' => 'Import a csv',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('theupload_import_form'),
+    'access arguments' => array('administer uploader'),
+  );
+  return $items;
+}
+
+/**
+ * Builds a form that will allow users to upload csv files
+ * 
+ * @see
+ *   hook_menu()
+ */
+function theupload_import_form($form, $form_state) {
+
+  // Populate FAPI select box from vocabulary term values.
+// In this case term_reference field is field_category
+  $form = array();
+
+  $form['cont_station'] = array(
+      '#type' => 'select',
+      '#empty_option' => t('-Επιλέξτε-'),
+      '#title' => t('Επιλέξτε Σταθμό'),
+      '#options' => taxonomy_allowed_values(field_info_field('field_content_station')),
+  );
+
+
+  $form['cont_pollution'] = array(
+      '#type' => 'select',
+      '#empty_option' => t('-Επιλέξτε-'),
+      '#title' => t('Επιλέξτε Τύπο Ρύπου'),
+      '#options' => taxonomy_allowed_values(field_info_field('field_content_pollution')),
+      'default_value' => NULL,
+  );
+
+  $form['notes'] = array(
+    '#type' => 'markup',
+    '#markup' => '<div class="import-notes">A few notes when uploading. <ul><li>Make sure the file is in a .csv format.</li><li>Columns should be in *this* order</li><li>Be sure to click the "Upload" button when you select a csv.</li></ul></div>',
+    '#upload_location' => 'public://upload-data/',
+
+  );
+  $form['import'] = array(
+    '#title' => t('Import'),
+    '#type' => 'managed_file',
+    '#description' => t('The uploaded csv will be imported and temporarily saved.'),
+    '#upload_location' => 'public://upload-data/',
+    '#upload_validators' => array(
+      'file_validate_extensions' => array('csv'),
+    ),
+  );
+
+  $form['submit'] = array (
+    '#type' => 'submit',
+    '#value' => t('Import'),
+  );
+
+  return $form;
+}
+
+/**
+ * Submit handler for theupload_import_form()
+ */
+function theupload_import_form_submit($form, $form_state) {
+  // Check to make sure that the file was uploaded to the server properly
+  $mytid_st = $form_state['complete form']['cont_station']['#value'];
+  $term_st = taxonomy_term_load($mytid_st);
+  $mytitle = $term_st->name;
+  //****************POLLUTION*********************************
+  $mytid_poll = $form_state['complete form']['cont_pollution']['#value'];
+  $term_poll = taxonomy_term_load($mytid_poll);
+  $mypollution = $term_poll->name;
+  $uri = db_query("SELECT uri FROM {file_managed} WHERE fid = :fid", array(
+    ':fid' => $form_state['input']['import']['fid'],
+  ))->fetchField();
+  if(!empty($uri)) {
+    if(file_exists(drupal_realpath($uri))) { 
+      // Open the csv
+      $handle = fopen(drupal_realpath($uri), "r");
+      // Go through each row in the csv and run a function on it. In this case we are parsing by '|' (pipe) characters.
+      // If you want commas are any other character, replace the pipe with it.
+        while (($data = fgetcsv($handle, 0, ',', '/')) !== FALSE) {
+          $operations[] = array(
+              'theupload_import_batch_processing',  // The function to run on each row
+              array($data,
+                    $mytitle,
+                    $mypollution,
+                    $mytid_st,
+                    $mytid_poll
+              ),  // The row in the csv
+          );
+        }
+
+      // Once everything is gathered and ready to be processed... well... process it!
+      $batch = array(
+        'title' => t('Importing CSV...'),
+        'operations' => $operations,  // Runs all of the queued processes from the while loop above.
+        'finished' => 'theupload_import_finished', // Function to run when the import is successful
+        'error_message' => t('The installation has encountered an error.'),
+        'progress_message' => t('Imported @current of @total products.'),
+      );
+      batch_set($batch);
+      fclose($handle);    
+    }
+  }
+  else {
+    drupal_set_message(t('There was an error uploading your file. Please contact a System administator.'), 'error');
+  }
+
+
+}
+
+
+/**
+ * This function runs the batch processing and creates nodes with then given information
+ * @see
+ * theupload_import_form_submit()
+ */
+
+function theupload_import_batch_processing($data,$mytitle,$mypollution,$mytid_st,$mytid_poll) {
+  $date = date('Y-m-d',strtotime($data[0]));
+  $bd = array();
+  for ($i=1; $i<=24; $i++){
+    $bd[$i-1] = $data[$i];
+  }
+  $serial_num = $data[0];
+
+    //Create the node.
+    global $user;
+    $node = new StdClass();
+    $node->type = 'record'; // Choose your type
+    $node->status = 1; // Sets to published automatically, 0 will be unpublished
+    $node->title = $mytitle . " - " . $mypollution;
+    $node->uid = $user->uid;
+    $node->field_content_station['und'][0]['tid'] = $mytid_st;
+    $node->field_content_pollution['und'][0]['tid'] = $mytid_poll;
+    $node->field_content_date['und']['0']['value'] = $date;
+    for ($i=0; $i<=23; $i++) {
+      $node->field_content_records['und'][$i]['value'] = $bd[$i];
+    }
+    $node->language = 'und';
+    $node->field_serial_number['und'][0]['value'] = $serial_num;
+    $node->field_serial_number['und'][0]['safe_value'] = check_plain($serial_num);
+    node_save($node);
+
+}
+
+
+/**
+ * This function runs when the batch processing is complete
+ *
+ * @see
+ * theupload_import_form_submit()
+ */
+function theupload_import_finished() {
+	drupal_set_message(t('Import Completed Successfully'));
+}

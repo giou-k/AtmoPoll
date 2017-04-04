@@ -1,0 +1,23 @@
+<?php
+
+//***************KATAGRAFH(Record)*********************************
+/**
+ * Implements hook_node_info()
+ */
+function station_node_info() {
+    return array(
+        'record' => array(
+            'name' => t('Καταγραφή'),
+            'base' => 'node_content',
+            'description' => t('You can define new records here'),
+            'has_title' => TRUE,
+            'title_label' => t('Title')
+        )
+    );
+}
+/**
+ * Implement hook_form()
+ */
+function station_form($node, $form_state) {
+    return node_content_form($node, $form_state);
+}

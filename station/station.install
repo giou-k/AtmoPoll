@@ -1,0 +1,304 @@
+<?php
+
+//***********************Stathmos taxonomy***********************
+/**
+ * Implements hook_install().
+ */
+function station_install()
+{
+    //Record content <---------------------------------------------
+    node_types_rebuild();
+    $types = node_type_get_types();
+    node_add_body_field($types['record']);
+
+    //Station Vocab <-----------------------------------------------
+    $new_vocab = (object)array(
+        'name' => 'Σταθμός',
+        'description' => 'Εισάγεται Σταθμό',
+        'machine_name' => 'taxonomy_station',
+    );
+    taxonomy_vocabulary_save($new_vocab);
+    //Pollution Type Vocab <-----------------------------------------------
+    $new_vocab = (object)array(
+        'name' => 'Τύπος Ρύπου',
+        'machine_name' => 'taxonomy_pollution_type',
+    );
+    taxonomy_vocabulary_save($new_vocab);
+
+
+}
+/**
+ * Implements hook_enable().
+ */
+function station_enable()
+{
+//Id Field-Instance <-------------------------------------------
+// Check if our field is not already created.
+    if (!field_info_field('field_id')) {
+// Create the field base.
+        $field = array(
+            'field_name' => 'field_id',
+            'type' => 'text',
+        );
+        field_create_field($field);
+
+// Create the field instance on the bundle.
+        $instance = array(
+
+            'field_name' => 'field_id',
+            'entity_type' => 'taxonomy_term',
+            'label' => 'Κωδικός',
+            'bundle' => 'taxonomy_station',
+            'display' => array(
+                'default' => array(
+                    'label' => 'above',
+                    'module' => 'text',
+                    'settings' => array(),
+                    'type' => 'text_default',
+                    'weight' => 0,
+                ),
+            ),
+            // If you don't set the "required" property then the field wont be required by default.
+            'required' => TRUE,
+            'settings' => array(
+                // Here you inform either or not you want this field showing up on the registration form.
+                'user_register_form' => 1,
+            ),
+            'widget' => array(
+                'type' => 'textfield',
+            ),
+
+        );
+        field_create_instance($instance);
+    }
+
+//Latitude Field-Instance <-------------------------------------------
+// Check if our field is not already created.
+    if (!field_info_field('field_latitude')) {
+// Create the field base.
+        $field = array(
+            'field_name' => 'field_latitude',
+            'type' => 'number_float',
+        );
+        field_create_field($field);
+
+// Create the field instance on the bundle.
+        $instance = array(
+
+            'field_name' => 'field_latitude',
+            'entity_type' => 'taxonomy_term',
+            'label' => 'Γεωγραφικό Πλάτος',
+            'bundle' => 'taxonomy_station',
+            // If you don't set the "required" property then the field wont be required by default.
+            'required' => TRUE,
+            /*
+            'settings' => array(
+                // Here you inform either or not you want this field showing up on the registration form.
+                'user_register_form' => 1,
+            ),
+            'widget' => array(
+                'type' => 'textfield',
+            ),
+            */
+        );
+        field_create_instance($instance);
+    }
+//Longitude Field-Instance <-------------------------------------------
+// Check if our field is not already created.
+    if (!field_info_field('field_longitude')) {
+// Create the field base.
+        $field = array(
+            'field_name' => 'field_longitude',
+            'type' => 'number_float',
+        );
+        field_create_field($field);
+// Create the field instance on the bundle.
+        $instance = array(
+            'field_name' => 'field_longitude',
+            'entity_type' => 'taxonomy_term',
+            'label' => 'Γεωγραφικό Μήκος',
+            'bundle' => 'taxonomy_station',
+            // If you don't set the "required" property then the field wont be required by default.
+            'required' => TRUE,
+
+        );
+        field_create_instance($instance);
+    }
+//Content Type Station Field-Instance <-------------------------------------------
+// Check if our field is not already created.
+    if (!field_info_field('field_content_station')) {
+// Create the field base.
+        $field = array(
+            'field_name' => 'field_content_station',
+            'type' => 'taxonomy_term_reference',
+            'settings' => array(
+                'allowed_values' => array(
+                    0 => array(
+                        'vocabulary' => 'taxonomy_station',
+                        'parent' => 0,
+                    ),
+                ),
+            ),
+        );
+        field_create_field($field);
+
+// Create the field instance on the bundle.
+        $instance = array(
+
+            'field_name' => 'field_content_station',
+            'entity_type' => 'node',
+            'label' => 'Σταθμός',
+            'bundle' => 'record',
+        );
+        field_create_instance($instance);
+    }
+//Content Type Pollution Field-Instance <-------------------------------------------
+// Check if our field is not already created.
+    if (!field_info_field('field_content_pollution')) {
+// Create the field base.
+        $field = array(
+            'field_name' => 'field_content_pollution',
+            'type' => 'taxonomy_term_reference',
+            'settings' => array(
+                'allowed_values' => array(
+                    0 => array(
+                        'vocabulary' => 'taxonomy_pollution_type',
+                        'parent' => 0,
+                    ),
+                ),
+            ),
+        );
+        field_create_field($field);
+
+// Create the field instance on the bundle.
+        $instance = array(
+
+            'field_name' => 'field_content_pollution',
+            'entity_type' => 'node',
+            'label' => 'Τύπος Ρύπου',
+            'bundle' => 'record',
+        );
+        field_create_instance($instance);
+    }
+
+//Content Type Date Field-Instance <-------------------------------------------
+// Check if our field is not already created.
+    if (!field_info_field('field_content_date')) {
+// Create the field base.
+        $field = array(
+            'field_name' => 'field_content_date',
+            'type' => 'datetime',
+            'cardinality' => -1,
+            'settings' => array(
+                'granularity' => array(
+                    'day' => 'day',
+                    'hour' => 0,
+                    'minute' => 0,
+                    'month' => 'month',
+                    'second' => 0,
+                    'year' => 'year',
+                ),
+                'timezone_db' => '',
+                'todate' => '',
+                'tz_handling' => 'none',
+            ),
+
+        );
+        field_create_field($field);
+
+// Create the field instance on the bundle.
+        $instance = array(
+
+            'field_name' => 'field_content_date',
+            'entity_type' => 'node',
+            'label' => 'Ημερομηνία',
+            'bundle' => 'record',
+            'required' => 0,
+            'settings' => array(
+              'default_value' => 'now',
+              'default_value2' => 'same',
+              'default_value_code' => '',
+              'default_value_code2' => '',
+              'user_register_form' => FALSE,
+            ),
+            'widget' => array(
+              'active' => 1,
+              'module' => 'date',
+              'settings' => array(
+                'increment' => 15,
+                'input_format' => 'd-m-Y',
+                //'input_format_custom' => '',
+                'label_position' => 'above',
+                'no_fieldset' => 0,
+                'text_parts' => array(),
+                'year_range' => '-9:+9',
+              ),
+              'type' => 'date_text',
+                ),
+            'display' => array(
+                'default' => array(
+                        'label' => 'above',
+                        'module' => 'date',
+                        'settings' => array(
+                          'format_type' => 'long',
+                          'fromto' => 'both',
+                          'multiple_from' => '',
+                          'multiple_number' => '',
+                          'multiple_to' => '',
+                          'show_remaining_days' => FALSE,
+                        ),
+                        'type' => 'date_default',
+                ),
+            ),
+
+        );
+        field_create_instance($instance);
+    }
+//Content Type Records Field-Instance <-------------------------------------------
+// Check if our field is not already created.
+    if (!field_info_field('field_content_records')) {
+// Create the field base.
+        $field = array(
+            'field_name' => 'field_content_records',
+            'type' => 'text',
+            'cardinality' => -1,
+        );
+        field_create_field($field);
+
+// Create the field instance on the bundle.
+        $instance = array(
+
+            'field_name' => 'field_content_records',
+            'entity_type' => 'node',
+            'label' => 'Καταγραφές',
+            'bundle' => 'record',
+        );
+        field_create_instance($instance);
+    }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function station_uninstall() {
+    $vocab = taxonomy_vocabulary_machine_name_load('taxonomy_station');
+    taxonomy_vocabulary_delete($vocab->vid);
+    $vocab = taxonomy_vocabulary_machine_name_load('taxonomy_pollution_type');
+    taxonomy_vocabulary_delete($vocab->vid);
+    //taxonomy
+    $field_name = 'field_id';
+    field_delete_field($field_name);
+    $field_name = 'field_latitude';
+    field_delete_field($field_name);
+    $field_name = 'field_longitude';
+    field_delete_field($field_name);
+    //content
+    $field_name = 'field_content_station';
+    field_delete_field($field_name);
+    $field_name = 'field_content_pollution';
+    field_delete_field($field_name);
+    $field_name = 'field_content_date';
+    field_delete_field($field_name);
+    $field_name = 'field_content_records';
+    field_delete_field($field_name);
+}

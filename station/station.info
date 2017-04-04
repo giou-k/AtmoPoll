@@ -1,0 +1,3 @@
+name = station
+description = Taxonomy and content type Station
+core = 7.x
